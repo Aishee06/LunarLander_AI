@@ -2,35 +2,33 @@ import gymnasium as gym
 import neat
 import numpy as np
 import os
+import pickle
 
 # Custom logger to display only best fitness, standard deviation, and generation time
 class CustomLogger(neat.reporting.BaseReporter):
     def post_evaluate(self, config, population, species, best_genome):
         fitness_scores = [genome.fitness for genome_id, genome in population.items()]
-        avg_fitness = np.mean(fitness_scores)
         stdev_fitness = np.std(fitness_scores)
         best_fitness = best_genome.fitness
         print(f"Best fitness: {best_fitness:.4f} | Std Dev: {stdev_fitness:.4f}")
 
     def end_generation(self, config, population, species):
-        pass  # Skip unnecessary species and population information
+        pass
 
     def start_generation(self, generation):
         print(f"Running Generation {generation}...")
 
     def complete_extinction(self):
-        pass  # Skip extinction information
+        pass
 
-# Function to normalize the observation
 def normalize_observation(observation):
     return (observation - np.mean(observation)) / (np.std(observation) + 1e-8)
 
-# Define a function to evaluate a genome's fitness
 def evaluate_creature(genome, config):
     network = neat.nn.FeedForwardNetwork.create(genome, config)
     scores = []
 
-    for trial in range(2):  # Run 2 trials
+    for trial in range(2):
         environment = gym.make("LunarLander-v2")
         state, _ = environment.reset()
         total_points = 0
@@ -48,15 +46,14 @@ def evaluate_creature(genome, config):
                 successfully_landed = True
 
             if successfully_landed and action_taken != 0:
-                reward -= 1  # Penalize unnecessary actions after landing
+                reward -= 1
 
             total_points += reward
             steps += 1
 
-            if steps > 1000:  # Limit episode duration
+            if steps > 1000:
                 break
 
-        # Reward or penalize based on the performance
         if total_points > 200:
             total_points += 100
         elif total_points < 0:
@@ -64,14 +61,12 @@ def evaluate_creature(genome, config):
 
         scores.append(total_points)
 
-    return sum(scores) / len(scores)  # Return average score
+    return sum(scores) / len(scores)
 
-# Evaluate the fitness of the entire population
 def assess_population(genomes, config):
     for genome_id, genome in genomes:
         genome.fitness = evaluate_creature(genome, config)
 
-# NEAT initialization and configuration
 def execute_neat():
     current_directory = os.path.dirname(__file__)
     settings_path = os.path.join(current_directory, "config.txt")
@@ -83,20 +78,16 @@ def execute_neat():
         settings_path
     )
 
-    # Create and set up the population
     species_pool = neat.Population(neat_config)
-
-    # Add custom logger to show relevant information
     species_pool.add_reporter(CustomLogger())
     stat_tracker = neat.StatisticsReporter()
     species_pool.add_reporter(stat_tracker)
 
-    # Run the evolution process
-    champion = species_pool.run(assess_population, 500)  # Max 500 generations
+    champion = species_pool.run(assess_population, 500)
     print('\nBest Genome:\n{!s}'.format(champion))
     return champion, neat_config
 
-# Visualize the top performer over multiple episodes
+
 def visualize_champion(champion, config, trials=25):
     neural_net = neat.nn.FeedForwardNetwork.create(champion, config)
     environment = gym.make("LunarLander-v2", render_mode="human")
@@ -117,6 +108,14 @@ def visualize_champion(champion, config, trials=25):
     average_reward = sum(all_rewards) / trials
     print(f"Average reward over {trials} trials: {average_reward}")
 
+def save_champion(champion, config, filename="champion.pkl"):
+    with open(filename, "wb") as f:
+        pickle.dump((champion, config), f)
+    print(f"Champion saved to {filename}")
+
 if __name__ == "__main__":
     champion, neat_settings = execute_neat()
+    save_champion(champion, neat_settings)
+
+    #Visualize the champion playing Lunar Lander
     visualize_champion(champion, neat_settings)
