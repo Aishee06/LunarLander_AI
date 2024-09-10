@@ -1,6 +1,8 @@
 # 🚀 Lunar Lander AI with NEAT-Python 🧠
 This project leverages the NEAT (NeuroEvolution of Augmenting Topologies) algorithm to train a neural network to play the Lunar Lander game from the Gymnasium toolkit. The goal is to evolve neural networks that can land the lunar module softly and safely. 🌕🛬
 
+![](https://github.com/Aishee06/LunarLander_AI/blob/main/Lunar%20Lander.gif)
+
 ## 🌟 Key Features
 - Neuroevolution with NEAT: Evolve neural networks over multiple generations to control the lunar lander.
 - Custom Logger: Track fitness, performance, and evolution over time.
