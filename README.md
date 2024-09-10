@@ -43,7 +43,7 @@ In visualize.py, we visualize the neural network of the champion:
 # 📊 Key Highlights
 - NEAT Evolution: The networks start simple and evolve to become more complex, gradually learning to control the lunar lander.
 - Fitness Score: Networks are scored based on their performance. The better the landing, the higher the fitness score.
-Champion Visualization: The champion network, after 500 generations, is saved and can be visualized and watched.
+- Champion Visualization: The champion network, after 500 generations, is saved and can be visualized and watched.
 
 # 🤖 How NEAT Works
 - Initial Population: Starts with 150 simple neural networks.
